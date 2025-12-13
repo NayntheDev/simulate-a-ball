@@ -1,8 +1,9 @@
 import pygame
 import math
 WIDHT, HEIGHT = 800,600
-G=9.8
-
+G=10
+WHITE=(255,255,255)
+BLACK=(0,0,0)
 class object:
     def __init__(self,x,y,r,color,mass):
         self.x = x
@@ -12,31 +13,44 @@ class object:
         self.mass = mass
         self.vel_x = 0
         self.vel_y = 0
-    def update(self):
+        self.my = 0
+    def update(self,framerate):
         self.x+=self.vel_x
         self.y+=self.vel_y
-    def pyshics(self,times,framerate):
+        self.vel_y+=G*(1/framerate)
+    def pyshics(self):
         self.h=HEIGHT - self.y - self.r
-        if self.h<0:
-            self.y=HEIGHT - self.r
-        else:
-            self.vel_y+=G*(times/1000)*(1/framerate)
+        if self.h<=0:
+            # self.y=HEIGHT - self.r
+            self.vel_y*=-1
+            self.my=self.vel_y*-1
     def draw(self,screen):
         pygame.draw.circle(screen,self.color,(int(self.x),int(self.y)),self.r)
 pygame.init()
+pygame.display.set_caption("Simple Physics of Falling Ball")
+pygame.font.init()
+text=pygame.font.SysFont('Arial',20)
 screen = pygame.display.set_mode((WIDHT,HEIGHT))
 clock = pygame.time.Clock()
 ball = object(400,50,20,(255,255,255),1)
-framerate=120
+framerate=60
 running=True
 while running:
     times=pygame.time.get_ticks()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running=False
-    ball.pyshics(times,framerate)
-    ball.update()
-    screen.fill((0,0,0))
+    showing_surface=text.render(f"vec_y:{ball.vel_y:.1f}",True,WHITE)
+    showingmaxy=text.render(f"max_vec_y:{ball.my:.4f}",True,WHITE)
+    showG=text.render(f"G:{G}",True,WHITE)
+    showfr=text.render(f"frame:{framerate}",True,WHITE)
+    ball.pyshics()
+    ball.update(framerate)
+    screen.fill(BLACK)
+    screen.blit(showing_surface,(10,10))
+    screen.blit(showingmaxy,(10,30))
+    screen.blit(showG,(10,50))
+    screen.blit(showfr,(10,70))
     ball.draw(screen)
     pygame.display.flip()
     clock.tick(framerate)
