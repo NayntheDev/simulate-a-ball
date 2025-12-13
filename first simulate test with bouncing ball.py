@@ -1,0 +1,56 @@
+import pygame
+from random import randint
+WIDTH, HEIGHT = 800, 600
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+class Ball:
+    def __init__(self, x, y, speed_x, speed_y, color, radius):
+        self.x = x
+        self.y = y
+        self.vx = speed_x
+        self.vy = speed_y
+        self.color = color
+        self.radius = radius
+    def move(self):
+        self.x += self.vx
+        self.y += self.vy
+        mx=0
+        my=0
+        if (self.x + self.radius > WIDTH) or (self.x - self.radius < 0):
+            self.x=(self.x + self.radius > WIDTH)*(WIDTH - self.radius-1) + (self.x - self.radius < 0)*(self.radius+1)
+            mx=max(mx,abs(self.vx)*2)
+            self.vx = (self.vx>0)*-1*randint(1,mx) + (self.vx<0)*randint(1,mx)
+
+        if (self.y + self.radius > HEIGHT) or (self.y - self.radius < 0):
+            self.y=(self.y + self.radius > HEIGHT)*(HEIGHT - self.radius-1) + (self.y - self.radius < 0)*(self.radius+1)
+            my=max(my,abs(self.vy)*2)
+            self.vy = (self.vy>0)*-1*randint(1,my) + (self.vy<0)*randint(1,my)
+    def draw(self, surface):
+        pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), self.radius)
+pygame.init()
+pygame.font.init()
+text=pygame.font.SysFont("Arial",20,False,False)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Bouncing Ball Class Demo")
+clock = pygame.time.Clock()
+a=randint(-10,10)
+b=randint(-10,10)
+my_ball = Ball(400, 300, a+(a==0), b+(b==0), (255, 0, 0), 20)
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    my_ball.move()
+    counting_time=pygame.time.get_ticks()/1000
+    text_clock_surface=text.render(f"{counting_time:.1f}'s", True, WHITE)
+    text_x_surface=text.render(f"{my_ball.vx:.1f}", True, WHITE)
+    text_y_surface=text.render(f"{my_ball.vy:.1f}", True, WHITE)
+    screen.fill(BLACK)
+    screen.blit(text_clock_surface, (10,10))
+    screen.blit(text_x_surface, (10,40))
+    screen.blit(text_y_surface, (10,70))
+    my_ball.draw(screen)
+    pygame.display.flip() 
+    clock.tick(120)
+pygame.quit()
