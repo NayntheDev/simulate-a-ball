@@ -1,7 +1,7 @@
 import pygame
 import math
 WIDHT, HEIGHT = 800,600
-G=10
+G=9.8
 WHITE=(255,255,255)
 BLACK=(0,0,0)
 class object:
@@ -14,14 +14,15 @@ class object:
         self.vel_x = 0
         self.vel_y = 0
         self.my = 0
-    def update(self,framerate):
+    def update(self):
         self.x+=self.vel_x
         self.y+=self.vel_y
-        self.vel_y+=G*(1/framerate)
-    def pyshics(self):
-        self.h=HEIGHT - self.y - self.r
-        if self.h<=0:
-            # self.y=HEIGHT - self.r
+    def pyshics(self,framerate):
+        self.h=HEIGHT - (self.y + self.r)
+        if self.h>0:
+            self.vel_y+=G*(1/framerate)
+        else:
+            self.y=HEIGHT-self.r
             self.vel_y*=-1
             self.my=self.vel_y*-1
     def draw(self,screen):
@@ -32,8 +33,8 @@ pygame.font.init()
 text=pygame.font.SysFont('Arial',20)
 screen = pygame.display.set_mode((WIDHT,HEIGHT))
 clock = pygame.time.Clock()
-ball = object(400,50,20,(255,255,255),1)
-framerate=60
+ball = object(400,200,20,(255,255,255),1)
+framerate=120
 running=True
 while running:
     times=pygame.time.get_ticks()
@@ -44,13 +45,15 @@ while running:
     showingmaxy=text.render(f"max_vec_y:{ball.my:.4f}",True,WHITE)
     showG=text.render(f"G:{G}",True,WHITE)
     showfr=text.render(f"frame:{framerate}",True,WHITE)
-    ball.pyshics()
-    ball.update(framerate)
+    showpoint=text.render(f"point_y:{(HEIGHT - (ball.y + ball.r)):.1f}",True,WHITE)
+    ball.pyshics(framerate)
+    ball.update()
     screen.fill(BLACK)
     screen.blit(showing_surface,(10,10))
     screen.blit(showingmaxy,(10,30))
     screen.blit(showG,(10,50))
     screen.blit(showfr,(10,70))
+    screen.blit(showpoint,(10,90))
     ball.draw(screen)
     pygame.display.flip()
     clock.tick(framerate)
